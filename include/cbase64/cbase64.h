@@ -17,6 +17,11 @@
 #ifndef CBASE64_H
 #define CBASE64_H
 
+#include <stdlib.h>
+#include <string.h>
+
+#define FREE_BASE64( x ) ( free((void *)x) )
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -240,5 +245,12 @@ unsigned int cbase64_encode_blockend(char* code_out, cbase64_encodestate* state_
     }
     return codechar - code_out;
 }
+
+
+// inline char* encode_data(const char* data_in, unsigned int* size_out)
+// {
+//     const char* in = data_in;
+//     return encode_data((const unsigned char*)in, &size_out);
+// }
 
 #endif // CBASE64_IMPLEMENTATION

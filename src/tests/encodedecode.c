@@ -1,6 +1,7 @@
 
 #define CBASE64_IMPLEMENTATION
 #include <cbase64/cbase64.h>
+#include <tests.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -44,31 +45,7 @@ static const char* g_TestString = \
     "point range-rover uplink man futurity narrative faded artisanal. weathered tube bomb " \
     "j-pop spook range-rover fetishism gang vinyl neural A.I. papier-mache wonton soup sub-orbital car.";
 
-char* EncodeData(const unsigned char* data_in, unsigned int length_in, unsigned int* length_out)
-{
-    const unsigned int encodedLength = cbase64_calc_encoded_length(length_in);
-    char* codeOut = (char*)malloc(encodedLength);
-    char* codeOutEnd = codeOut;
 
-    cbase64_encodestate encodeState;
-    cbase64_init_encodestate(&encodeState);
-    codeOutEnd += cbase64_encode_block(data_in, length_in, codeOutEnd, &encodeState);
-    codeOutEnd += cbase64_encode_blockend(codeOutEnd, &encodeState);
-
-    *length_out = (codeOutEnd - codeOut);
-    return codeOut;
-}
-
-unsigned char* DecodeData(const char* code_in, unsigned int length_in, unsigned int* length_out)
-{
-    const unsigned int decodedLength = cbase64_calc_decoded_length(code_in, length_in);
-    unsigned char* dataOut = (unsigned char*)malloc(decodedLength);
-
-    cbase64_decodestate decodeState;
-    cbase64_init_decodestate(&decodeState);
-    *length_out = cbase64_decode_block(code_in, length_in, dataOut, &decodeState);
-    return dataOut;
-}
 
 int EncodeDecodeTest(const char* string)
 {
@@ -341,7 +318,7 @@ int PartialTest()
             {
                 unencodeOut += cbase64_decode_block(encoded + j, 1, unencodeOut, &decodeState);
             }
-            unencodedLength = (unencodeOut - unencoded);
+            unencodedLength = ((unsigned char*)unencodeOut - unencoded);
         }
         if (unencodedLength != unencodedLengthActual ||
             encodedLength != encodedLengthActual ||
@@ -360,7 +337,7 @@ int PartialTest()
     return ret;
 }
 
-int main()
+int test()
 {
     if (0 == EncodeDecodeTest(g_TestString))
     {
