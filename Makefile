@@ -7,7 +7,7 @@
 CC = gcc
 
 # define any compile-time flags
-CFLAGS	:= -Wall -Wextra -g
+CFLAGS	:= -Wall -Wextra -Wpedantic -g
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -65,6 +65,7 @@ OBJECTS		:= $(SOURCES:.c=.o)
 OUTPUTMAIN	:= $(call FIXPATH,$(OUTPUT)/$(MAIN))
 
 all: $(OUTPUT) $(MAIN)
+	@echo
 	@echo Executing 'all' complete!
 
 $(OUTPUT):
@@ -84,8 +85,10 @@ $(MAIN): $(OBJECTS)
 clean:
 	$(RM) $(OUTPUTMAIN)
 	$(RM) $(call FIXPATH,$(OBJECTS))
+	@echo
 	@echo Cleanup complete!
 
 run: all
 	./$(OUTPUTMAIN)
+	@echo
 	@echo Executing 'run: all' complete!

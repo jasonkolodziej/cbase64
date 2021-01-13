@@ -13,9 +13,10 @@
    #include "cbase64.h"
 
 */
-
+#pragma once
 #ifndef CBASE64_H
 #define CBASE64_H
+
 
 #include <stdlib.h>
 #include <string.h>
@@ -63,6 +64,7 @@ unsigned int cbase64_encode_blockend(char* code_out, cbase64_encodestate* state_
 
 #endif // CBASE64_H
 
+#pragma once
 #ifdef CBASE64_IMPLEMENTATION
 
 char cbase64__encode_value(unsigned char value_in)
@@ -156,6 +158,9 @@ unsigned int cbase64_encode_block(const unsigned char* data_in, unsigned int len
             result  = (fragment & 0x03f) >> 0;
             *codechar++ = cbase64__encode_value(result);
         }
+    //! clang warning check
+    case step_D:
+        break;
     }
     // control should not reach here
     return codechar - code_out;
@@ -242,11 +247,51 @@ unsigned int cbase64_encode_blockend(char* code_out, cbase64_encodestate* state_
         break;
     case step_A:
         break;
+    //! clang: warning check
+    case step_D:
+        break;
     }
     return codechar - code_out;
 }
 
+static inline char* EncodeData(const unsigned char* data_in, unsigned int length_in, unsigned int* length_out)
+{
+    const unsigned int encodedLength = cbase64_calc_encoded_length(length_in);
+    char* codeOut = (char*)malloc(encodedLength);
+    char* codeOutEnd = codeOut;
 
+    cbase64_encodestate encodeState;
+    cbase64_init_encodestate(&encodeState);
+    codeOutEnd += cbase64_encode_block(data_in, length_in, codeOutEnd, &encodeState);
+    codeOutEnd += cbase64_encode_blockend(codeOutEnd, &encodeState);
+
+    *length_out = (codeOutEnd - codeOut);
+    return codeOut;
+}
+
+static inline unsigned char* DecodeData(const char* code_in, unsigned int length_in, unsigned int* length_out)
+{
+    const unsigned int decodedLength = cbase64_calc_decoded_length(code_in, length_in);
+    unsigned char* dataOut = (unsigned char*)malloc(decodedLength);
+
+    cbase64_decodestate decodeState;
+    cbase64_init_decodestate(&decodeState);
+    *length_out = cbase64_decode_block(code_in, length_in, dataOut, &decodeState);
+    return dataOut;
+}
+
+static inline char* encode_data(const unsigned char* data_in, unsigned int* size_out)
+{
+    const unsigned int length = 1 + strlen((const char *)data_in);
+    return EncodeData(data_in, length, size_out);
+}
+
+static inline unsigned char* decode_data(const char* data_in, unsigned int* size_out)
+{
+    const char* in = data_in;
+    const unsigned int length = 1 + strlen(data_in);
+    return DecodeData(in, length, size_out);
+}
 // inline char* encode_data(const char* data_in, unsigned int* size_out)
 // {
 //     const char* in = data_in;
